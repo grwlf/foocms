@@ -4,13 +4,13 @@ type state = {Lang: string}
 val st_ru : state = {Lang = "RU"}
 val st_en : state = {Lang = "EN"}
 
-fun main' st = template st (main') ("Site in " ^ st.Lang)
+fun main' st = template (main') st ("Site in " ^ st.Lang)
 
 and template :
-     state 
-  -> (state -> transaction page) 
+     (state -> transaction page) 
+  -> state 
   -> string
-  -> transaction page = fn st reload body =>
+  -> transaction page = fn reload st body =>
   return <xml>
            <head>
              <title>MultyLang page</title>
