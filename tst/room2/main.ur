@@ -4,7 +4,7 @@ type state = {Lang: string}
 val st_ru : state = {Lang = "RU"}
 val st_en : state = {Lang = "EN"}
 
-fun main' st = template st (main') ("Site in" ^ st.Lang)
+fun main' st = template st (main') ("Site in " ^ st.Lang)
 
 and template :
      state 
@@ -17,7 +17,7 @@ and template :
            </head>
            <body>
              <h1>The body</h1>
-             <a link={main' st}> Go to Main </a>
+             <a link={main' st}> Go to specific place (keeping the language) </a>
              <hr/>
              {[body]}
              <hr/>
