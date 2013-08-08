@@ -4,4 +4,3 @@ sql urcms.sql
 src/Tmpl
 src/Auth
 src/Main
-tst/link

@@ -19,19 +19,20 @@ fun withAuth li page =
           };
         page
 
-and login {} = return
-	<xml>
-		<head><title>Login to UrCMS</title></head>
-		<body>
-			<form>
-				<p>
-          Username: <br/><textbox{#Username}/><br/>
-				  Password: <br/><password{#Password}/><br/>
-					<submit value="Login" action={loginHandler}/>
-				</p>
-			</form>
-		</body>
-	</xml>
+and login st = return (Tmpl.template st
+  { Title = "Login to UrCMS"
+  , Login = fn st' => login st'
+  , Body = fn st' =>
+      <xml>
+        <form>
+          <p>
+            Username: <br/><textbox{#Username}/><br/>
+            Password: <br/><password{#Password}/><br/>
+            <submit value="Login" action={loginHandler}/>
+          </p>
+        </form>
+      </xml>
+  })
 
 and loginHandler li =
   withAuth li (return

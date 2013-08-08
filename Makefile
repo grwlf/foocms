@@ -2,7 +2,7 @@
 # https://github.com/grwlf/cake3
 
 GUARD = .GUARD_$(1)_$(shell echo $($(1)) | md5sum | cut -d ' ' -f 1)
-URFLAGS = -dumpTypes -dbms sqlite
+URFLAGS = -dumpTypes
 .PHONY: all
 all : resetdb urcms.exe
 .PHONY: resetdb
@@ -11,7 +11,7 @@ resetdb : urcms.sql urcms.db urcms.db
 	sqlite3 urcms.db < urcms.sql
 .INTERMEDIATE:stamp1
 stamp1 : urcms.urp src/Tmpl.ur src/Main.ur src/Auth.ur tst/ref.ur tst/refFun.ur tst/link.ur $(call GUARD,URFLAGS)
-	urweb $(URFLAGS) urcms
+	urweb $(URFLAGS) -dbms sqlite urcms
 urcms.sql urcms.exe : stamp1
 urcms.db : 
 	touch urcms.db

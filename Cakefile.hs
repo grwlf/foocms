@@ -19,7 +19,9 @@ pname = "urcms" :: String
 src = "src"
 tst = "tst"
 
-urflags = makevar "URFLAGS" $ tcflag ++ " -dbms sqlite"
+urflags = makevar "URFLAGS" tcflag
+
+dbflags = "-dbms sqlite" :: String
 
 files = do
   fs <- forM [tst,src] $ \ d -> glob $ d </> "*.ur"
@@ -30,7 +32,7 @@ dbfile = rule [file "urcms.db"] $ do
 
 site@[sqlscript, exe] = rule [file "urcms.sql", file "urcms.exe"] $ do
   depend files
-  [shell| urweb $urflags $pname |]
+  [shell| urweb $urflags $dbflags $pname |]
 
 resetdb = phony "resetdb" $ do
   [shell| -rm -rf $dbfile |]
