@@ -4,9 +4,6 @@ type state = {Lang: string}
 val st_ru : state = {Lang = "RU"}
 val st_en : state = {Lang = "EN"}
 
-(* Is it xbody or no? *)
-type inner = (xml ([Body = (), Dyn = (), MakeForm = ()]) ([]) ([]))
-
 fun main' st = template st (main') ("Site in" ^ st.Lang)
 
 and template :
