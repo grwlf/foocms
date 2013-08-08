@@ -1,0 +1,6 @@
+database dbname=urcms.db
+sql urcms.sql
+
+# Order metters!!
+tmpl
+main
