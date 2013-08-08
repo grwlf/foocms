@@ -1,6 +1,6 @@
 
-val st_ru = {Lang = "RU"}
-val st_en = {Lang = "EN"}
+val st_ru :state = {Lang = "RU"}
+val st_en :state = {Lang = "EN"}
 
 fun template st s = let
   val b = s.Body st
@@ -14,8 +14,6 @@ fun template st s = let
              {b}
              <hr/>
              <p>Current language is {[st.Lang]}</p>
-             <a link={template st_ru s}>View in RU</a>
-             <a link={template st_en s}>View in EN</a>
            </body>
          </xml>)
   in xml end

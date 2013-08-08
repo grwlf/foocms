@@ -10,7 +10,7 @@ resetdb : urcms.sql urcms.db urcms.db
 	-rm -rf urcms.db
 	sqlite3 urcms.db < urcms.sql
 .INTERMEDIATE:stamp1
-stamp1 : urcms.urp src/Tmpl.ur src/Main.ur src/Auth.ur tst/ref.ur tst/refFun.ur tst/link.ur $(call GUARD,URFLAGS)
+stamp1 : urcms.urp src/Tmpl.ur src/FooCMS.ur src/Main.ur src/Auth.ur tst/ref.ur tst/refFun.ur tst/link.ur $(call GUARD,URFLAGS)
 	urweb $(URFLAGS) -dbms sqlite urcms
 urcms.sql urcms.exe : stamp1
 urcms.db : 

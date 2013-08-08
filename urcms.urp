@@ -1,6 +1,4 @@
 database dbname=urcms.db
 sql urcms.sql
 
-src/Tmpl
-src/Auth
-src/Main
+src/FooCMS

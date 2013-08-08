@@ -5,39 +5,27 @@ val st_ru : state = {Lang = "RU"}
 val st_en : state = {Lang = "EN"}
 
 (* Is it xbody or no? *)
-type insides = (xml ([Body = (), Dyn = (), MakeForm = ()]) ([]) ([]))
+type inner = (xml ([Body = (), Dyn = (), MakeForm = ()]) ([]) ([]))
 
-type scheme = {
-    Title : string
-  , Body : state -> transaction insides
-  (* Reload the page in different language *)
-  , Me : state -> transaction page
-  }
+fun main' st = template st (main') ("Site in" ^ st.Lang)
 
-fun main' st = template
-    { Title = "main"
-    , Body = fn st' => return
-      <xml>
-      <h2>Main body</h2>
-      </xml>
-    , Me = fn st' => main' st'
-    } st
-
-and template : scheme -> state -> transaction page = fn s st =>
-  b <- s.Body st;
+and template :
+     state 
+  -> (state -> transaction page) 
+  -> string
+  -> transaction page = fn st reload body =>
   return <xml>
            <head>
-             <title>{[s.Title]}</title>
+             <title>MultyLang page</title>
            </head>
            <body>
              <h1>The body</h1>
-             <a link={main' st}> Login </a>
+             <a link={main' st}> Go to Main </a>
              <hr/>
-             {b}
+             {[body]}
              <hr/>
-             <p>Current language is in {[st.Lang]}</p>
-             <a link={s.Me st_ru}>View in RU</a>
-             <a link={s.Me st_en}>View in EN</a>
+             <a link={reload st_ru}>View in RU</a>
+             <a link={reload st_en}>View in EN</a>
            </body>
          </xml>
 
