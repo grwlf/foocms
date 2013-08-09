@@ -25,7 +25,7 @@ fun template (pmain : state -> transaction page) (reload : state -> transaction 
              <title>MultiLang</title>
            </head>
            <body>
-             <h1>A site supporting template and multiple languages</h1>
+             <h1>A templated site supporting multiple languages</h1>
              <h5> Header </h5>
              <a link={pmain st}> Go to default place (keeps the language) </a>
              <hr/>
