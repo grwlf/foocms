@@ -1,18 +1,14 @@
 (* 
 
 Attempt to pass first-class function as a link expression. Trying to encode
-links prior to passing them to the template. template now is pure.
+links prior to passing them to the template. template is pure now.
 
-Doesn't work
+Doesn't work due to XML Unification error.
 
 *)
 
-datatype lang = Ru | En
-
-fun lang2str l = case l of Ru => "ru" | En => "en"
-
 fun main' (l:lang) = let
-  val reloader = fn (l':lang) => <xml><p><a link={main' l'}>Switch to {[lang2str l']}</a></p></xml>
+  val reloader = fn (l':lang) => <xml><p><a link={main' l'}>Switch to {[l]}</a></p></xml>
   in return (template reloader l) end
 
 and template reload (l:lang) =
@@ -22,13 +18,13 @@ and template reload (l:lang) =
      </head>
      <body>
        <h1>The body</h1>
-       <p>Current page is in {[lang2str l]}</p>
+       <p>Current page is in {[l]}</p>
        <p>The content</p>
        <p>Other languages:</p>
-       {reload Ru}
-       {reload En} (* Compiles if one remove second call to reload *)
+       {reload "Ru"}
+       {reload "En"} (* Compiles if one remove second call to reload *)
      </body>
    </xml>
 
-fun main {} = main' En
+fun main {} = main' "En"
 
