@@ -26,7 +26,7 @@ and template reload (l:lang) =
        <p>The content</p>
        <p>Other languages:</p>
        {reload Ru}
-       {reload En} (* Compiles if one remove second call to chlang *)
+       {reload En} (* Compiles if one remove second call to reload *)
      </body>
    </xml>
 
