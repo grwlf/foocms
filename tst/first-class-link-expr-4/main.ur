@@ -3,6 +3,8 @@
 Attempt to pass first-class function as a link expression. Trying to encode
 links prior to passing them to the template. template now is pure.
 
+Doesn't work
+
 *)
 
 datatype lang = Ru | En
