@@ -31,7 +31,6 @@ fun template (s : scheme) (st : state) (b:string) : transaction page =
            </body>
          </xml>
 
-
 fun main' (st:state) = template {Smain = main', Sreload = main'} st ("Site in " ^ st.Lang) 
 
 fun main {} = main' st_en
