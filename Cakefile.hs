@@ -12,9 +12,10 @@ import System.FilePath.Glob
 
 import Cakefile_P (file, cakefiles)
 
-tcflag = "-dumpTypes"
+-- tcflag = "-dumpTypes"
+tcflag = ""
 
-pname = "urcms" :: String
+pname = "FooCMS" :: String
 
 src = "src"
 tst = "tst"
@@ -25,12 +26,12 @@ dbflags = "-dbms sqlite" :: String
 
 files = do
   fs <- forM [tst,src] $ \ d -> glob $ d </> "*.ur"
-  return $ map file $ concat fs ++ ["urcms.urp"]
+  return $ map file $ concat fs ++ ["FooCMS.urp"]
 
-dbfile = rule [file "urcms.db"] $ do
+dbfile = rule [file "FooCMS.db"] $ do
   [shell| touch $dst |]
 
-site@[sqlscript, exe] = rule [file "urcms.sql", file "urcms.exe"] $ do
+site@[sqlscript, exe] = rule [file $ pname ++ ".sql", file $ pname ++ ".exe"] $ do
   depend files
   [shell| urweb $urflags $dbflags $pname |]
 
@@ -53,7 +54,7 @@ cakegen = rule [file "Cakegen" ] $ do
   [shell| cake3 |]
 
 selfupdate = rule [file "Makefile"] $ do
-  [shell| $cakegen > $dst |]
+  [shell| ./$cakegen > $dst |]
 
 main = do
   runMake [Cakefile.all, site, resetdb, selfupdate, tc] >>= putStrLn . toMake

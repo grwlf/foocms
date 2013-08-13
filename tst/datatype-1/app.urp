@@ -1,4 +1,5 @@
 database dbname=urcms.db
 sql urcms.sql
 
-src/FooCMS
+$/string
+main

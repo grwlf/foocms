@@ -1,0 +1,5 @@
+database dbname=urcms.db
+sql urcms.sql
+
+$/string
+Lite

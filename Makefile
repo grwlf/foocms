@@ -2,26 +2,26 @@
 # https://github.com/grwlf/cake3
 
 GUARD = .GUARD_$(1)_$(shell echo $($(1)) | md5sum | cut -d ' ' -f 1)
-URFLAGS = -dumpTypes
+URFLAGS = 
 .PHONY: all
-all : resetdb urcms.exe
+all : resetdb FooCMS.exe
 .PHONY: resetdb
-resetdb : urcms.sql urcms.db urcms.db
-	-rm -rf urcms.db
-	sqlite3 urcms.db < urcms.sql
+resetdb : FooCMS.sql FooCMS.db FooCMS.db
+	-rm -rf FooCMS.db
+	sqlite3 FooCMS.db < FooCMS.sql
 .INTERMEDIATE:stamp1
-stamp1 : urcms.urp src/Tmpl.ur src/FooCMS.ur src/Main.ur src/Auth.ur tst/ref.ur tst/refFun.ur tst/link.ur $(call GUARD,URFLAGS)
-	urweb $(URFLAGS) -dbms sqlite urcms
-urcms.sql urcms.exe : stamp1
-urcms.db : 
-	touch urcms.db
+stamp1 : FooCMS.urp src/Auth.ur src/Lite.ur tst/ref.ur tst/refFun.ur tst/link.ur $(call GUARD,URFLAGS)
+	urweb $(URFLAGS) -dbms sqlite FooCMS
+FooCMS.sql FooCMS.exe : stamp1
+FooCMS.db : 
+	touch FooCMS.db
 Makefile : Cakegen
-	Cakegen > Makefile
+	./Cakegen > Makefile
 Cakegen : ./Cakefile.hs
 	cake3
 .PHONY: tc
 tc : 
-	urweb -dumpTypes urcms
+	urweb  FooCMS
 $(call GUARD,URFLAGS) :
 	rm -f .GUARD_URFLAGS_*
 	touch $@

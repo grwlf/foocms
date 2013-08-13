@@ -1,0 +1,4 @@
+database dbname=FooCMS.db
+sql FooCMS.sql
+
+src/Lite
