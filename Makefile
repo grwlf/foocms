@@ -6,9 +6,10 @@ URFLAGS =
 .PHONY: all
 all : resetdb FooCMS.exe
 .PHONY: resetdb
-resetdb : FooCMS.sql FooCMS.db FooCMS.db
+resetdb : ./filldb.sh FooCMS.sql FooCMS.db FooCMS.db style.css file.markdown
 	-rm -rf FooCMS.db
 	sqlite3 FooCMS.db < FooCMS.sql
+	./filldb.sh
 .INTERMEDIATE:stamp1
 stamp1 : FooCMS.urp src/Auth.ur src/Lite.ur tst/ref.ur tst/refFun.ur tst/link.ur $(call GUARD,URFLAGS)
 	urweb $(URFLAGS) -dbms sqlite FooCMS

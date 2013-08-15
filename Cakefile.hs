@@ -36,8 +36,11 @@ site@[sqlscript, exe] = rule [file $ pname ++ ".sql", file $ pname ++ ".exe"] $ 
   [shell| urweb $urflags $dbflags $pname |]
 
 resetdb = phony "resetdb" $ do
+  depend (file "file.markdown")
+  depend (file "style.css")
   [shell| -rm -rf $dbfile |]
   [shell| sqlite3 $dbfile < $sqlscript |]
+  [shell| $(file "./filldb.sh") |]
 
 all = do
   phony "all" $ do

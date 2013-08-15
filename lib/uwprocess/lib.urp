@@ -1,0 +1,4 @@
+ffi process
+include process.h
+link process.o
+effectful Process.process

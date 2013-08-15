@@ -14,6 +14,24 @@ table user : $(c_user_profile)
 
 cookie userSession : user_cookie
 
+(* Articles *)
+
+style css_article
+
+table article : { Id : int, Caption : string, Text : blob }
+  PRIMARY KEY Id
+
+(* CSS *)
+
+table stylesheet : { Id : int, Data : blob }
+  PRIMARY KEY Id
+
+fun css (n:int) : transaction page =
+  b <- oneOrNoRows1 (SELECT stylesheet.Data FROM stylesheet WHERE stylesheet.Id = {[n]});
+  case b of
+    None => error <xml>No CSS can be found with index {[n]}</xml>
+    |Some b => returnBlob b.Data (blessMime "text/css")
+
 (* Languages *)
 
 datatype lang = RU | EN | FR
@@ -22,100 +40,117 @@ val show_lang = mkShow (fn l => case l of
 
 (* Content types *)
 
-datatype content = Greetings | Article | Error
+datatype content = Greetings | Article of int | Error
 
-datatype state = ST of {Lang: lang, Page : content}
+datatype form = Login of content | View of content
 
-val defstate = ST {Lang = EN, Page = Greetings }
+datatype state = ST of {Lang: lang, Page : form}
+val defstate : state = ST {Lang = EN, Page = View Greetings }
 
-fun chlang (s:state) (l:lang) : state = case s of ST s => ST ((s -- #Lang) ++ { Lang = l })
-fun chcont (s:state) (c:content) : state = case s of ST s => ST ((s -- #Page) ++ { Page = c })
-fun lang_ru s = chlang s RU
-fun lang_en s = chlang s EN
-fun lang_fr s = chlang s FR
 fun unstate (st:state) = case st of ST st => st
-fun greet s = chcont s Greetings
 
+fun mapstate (f:{Lang: lang, Page : form} -> {Lang: lang, Page : form}) (st:state) : state = case st of ST st => ST (f st)
 
-type foopage = state -> transaction page
+fun mapcontent f = mapstate (fn st => {Lang=st.Lang, Page=(f st.Page)})
+val greet = mapcontent (fn _ => (View Greetings))
+(* val article = mapcontent (fn _ => (View (Article 0))) *)
+val article' n = mapcontent (fn _ => (View (Article n)))
 
-(* Templates *)
-fun flip f a b = f b a
+fun maplang f = mapstate (fn st => {Lang=(f st.Lang), Page=st.Page})
+val lang_ru = maplang (fn _ => RU)
+val lang_en = maplang (fn _ => EN)
+val lang_fr = maplang (fn _ => FR)
 
-type scheme = { Self : foopage
-              , SomeTemplateArg : int
+val login = mapcontent (fn c => case c of View c => Login c | Login c => Login c)
+val unlogin = mapcontent (fn c => case c of View c => View c | Login c => View c)
+
+(* Main part *)
+
+type scheme = { SomeTemplateArg : int
               , AnotherTemplateArg : bool
               }
-
-fun for s : scheme = s ++ { SomeTemplateArg = 0, AnotherTemplateArg = False }
 
 fun template (s : scheme) (st : state) (tb : transaction xbody) : transaction page =
   b <- tb;
   return <xml>
            <head>
              <title>MultyLang page</title>
+             <link rel="stylesheet" typ="text/css" href={url (css 0)}/>
            </head>
            <body>
              <h1>The body</h1>
-             <a link={s.Self (greet st)}> Main </a>
+             <a link={sitemap (greet st)}> Main </a>
              <h6>(the site is in {[(unstate st).Lang]})</h6>
              <hr/>
              {b}
              <hr/>
-             <a link={s.Self (lang_ru st)}>View in RU</a>
-             <a link={s.Self (lang_en st)}>View in EN</a>
-             <a link={s.Self (lang_fr st)}>View in FR</a>
+             <a link={sitemap (lang_ru st)}>View in RU</a>
+             <a link={sitemap (lang_en st)}>View in EN</a>
+             <a link={sitemap (lang_fr st)}>View in FR</a>
+             <a link={sitemap (login st)}>Login</a>
            </body>
          </xml>
 
-fun sitemap (st:state) =
+and sitemap (st:state) =
   case (unstate st).Page of
+    View c => (case c of
       Greetings =>
-        template {Self = sitemap, SomeTemplateArg = 0, AnotherTemplateArg = True} st (
+        template {SomeTemplateArg = 0, AnotherTemplateArg = True} st (
           return <xml>
             Greetings!
-            <a link={login st}>Login</a> or read an <a link={sitemap (chcont st Article)}>article</a>
+            Read an <a link={sitemap (article' 0 st)}>article</a>
           </xml>)
-    | Article =>
-        template {Self = sitemap, SomeTemplateArg = 0, AnotherTemplateArg = True} st (
-          return <xml>
-            An article
-            <a link={login st}>Login</a>
-          </xml>)
-    | Error =>
-        template {Self = sitemap, SomeTemplateArg = 0, AnotherTemplateArg = False} st (
+      |Article n =>
+        template {SomeTemplateArg = 0, AnotherTemplateArg = True} st (
+          r <- oneOrNoRows1(
+            SELECT article.Text FROM article WHERE article.Id = 0);
+          case r of
+            None => return <xml>No such article</xml>
+            |Some a =>
+              t <- return (Process.blobXml a.Text);
+              return <xml><div class={css_article}>{t}</div></xml>
+          )
+     |Error =>
+        template {SomeTemplateArg = 0, AnotherTemplateArg = False} st (
           return <xml>
             Error haha
           </xml>
-        )
+          ))
+    |Login c =>
+      let
 
-and login (st:state) =
-  let
-    fun handler (st:state) frm = template {Self = flip handler frm, SomeTemplateArg = 0, AnotherTemplateArg = False} st (
-      re <- oneOrNoRows1( SELECT user.Id
-                          FROM   user 
-                          WHERE  user.Login = {[frm.Login]} AND user.Pass = {[frm.Pass]} );
-      case re of
-        None => return <xml>Invalid Login</xml> |
-        Some u =>
-          setCookie userSession { Value = (frm ++ {Id=u.Id}), Expires = None, Secure = False};
-          return <xml>
-            Login succeeded. Go <a link={sitemap st}>next</a>
-          </xml>)
-  in template {Self = login, SomeTemplateArg = 0, AnotherTemplateArg = False} st (
-    return <xml>
-      Login please
-      <form>
-        <p>
-          Username: <br/><textbox{#Login}/><br/>
-          Password: <br/><password{#Pass}/><br/>
-          <submit value="Login" action={handler st}/>
-        </p>
-      </form>
-    </xml>)
-  end
+        fun login_form {} =
+          <xml>
+            <form>
+              Username: <br/><textbox{#Login}/><br/>
+              Password: <br/><password{#Pass}/><br/>
+              <submit value="Login" action={handler st}/>
+            </form>
+          </xml>
+
+        and handler (st:state) frm = template {SomeTemplateArg = 0, AnotherTemplateArg = False} st (
+          re <- oneOrNoRows1(
+            SELECT user.Id FROM user WHERE user.Login = {[frm.Login]} AND user.Pass = {[frm.Pass]} );
+          case re of
+            None => return
+              <xml>
+                Invalid Login
+                <hr/>
+                {login_form {}}
+              </xml>
+            |Some u =>
+              setCookie userSession { Value = (frm ++ {Id=u.Id}), Expires = None, Secure = False};
+              return <xml>
+                Login succeeded. Go <a link={sitemap (unlogin st)}>next</a>
+              </xml>)
+      in template {SomeTemplateArg = 0, AnotherTemplateArg = False} st (
+        return <xml>
+          Login, please
+          {login_form {}}
+        </xml>)
+      end
+
+and page (n:int) = sitemap (article' n defstate)
 
 fun main {} = sitemap defstate
-
-fun dummy {} = return <xml>custom xml</xml>
 

@@ -1,3 +1,6 @@
 val main : unit -> transaction page
 
-val dummy : unit -> transaction xbody
+val css : int -> transaction page
+
+val page : int -> transaction page
+
