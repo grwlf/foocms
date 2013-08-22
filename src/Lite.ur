@@ -21,16 +21,16 @@ style css_article
 table article : { Id : int, Caption : string, Text : blob }
   PRIMARY KEY Id
 
+task initialize = fn {} => 
+  b <- Article_html.binary {};
+  e <- tryDml (INSERT INTO article (Id, Caption, Text) VALUES (0, "Sample", {[b]}));
+  return {}
+
 (* CSS *)
 
-table stylesheet : { Id : int, Data : blob }
-  PRIMARY KEY Id
-
-fun css (n:int) : transaction page =
-  b <- oneOrNoRows1 (SELECT stylesheet.Data FROM stylesheet WHERE stylesheet.Id = {[n]});
-  case b of
-    None => error <xml>No CSS can be found with index {[n]}</xml>
-    |Some b => returnBlob b.Data (blessMime "text/css")
+fun css {} : transaction page =
+  b <- Style_css.binary ();
+  returnBlob b (blessMime "text/css")
 
 (* Languages *)
 
@@ -70,15 +70,44 @@ type scheme = { SomeTemplateArg : int
               , AnotherTemplateArg : bool
               }
 
+style css_topmenu
+
 fun template (s : scheme) (st : state) (tb : transaction xbody) : transaction page =
   b <- tb;
   return <xml>
            <head>
              <title>MultyLang page</title>
-             <link rel="stylesheet" typ="text/css" href={url (css 0)}/>
+             <link rel="stylesheet" typ="text/css" href={url (css ())}/>
            </head>
-           <body>
+           <body onload={JQM_wrapper.init css_topmenu}>
+
              <h1>The body</h1>
+
+             <div class={css_topmenu}>
+               <ul>
+                   <li><a link={main ()} title="Меню 1">Меню 1</a>
+                       <ul>
+                          <li><a link={main ()} title="Элемент 1.1">Элемент 1.1</a></li>
+                          <li><a link={main ()} title="Элемент 1.2">Элемент 1.2</a></li>
+                          <li><a link={main ()} title="Элемент 1.3">Элемент 1.3</a></li>
+                       </ul>
+                   </li>
+                   <li><a link={main ()} title="Меню 2">Меню 2</a>
+                       <ul>
+                          <li><a link={main ()} title="Элемент 2.1">Элемент 2.1</a></li>
+                          <li><a link={main ()} title="Элемент 2.2">Элемент 2.2</a></li>
+                          <li><a link={main ()} title="Элемент 2.3">Элемент 2.3</a></li>
+                       </ul>
+                   </li>
+                   <li><a link={main ()} title="Меню 3">Меню 3</a>
+                       <ul>
+                          <li><a link={main ()} title="Элемент 3.1">Элемент 3.1</a></li>
+                          <li><a link={main ()} title="Элемент 3.2">Элемент 3.2</a></li>
+                          <li><a link={main ()} title="Элемент 3.3">Элемент 3.3</a></li>
+                       </ul>
+                   </li>
+               </ul>      
+             </div>
              <a link={sitemap (greet st)}> Main </a>
              <h6>(the site is in {[(unstate st).Lang]})</h6>
              <hr/>
@@ -152,5 +181,7 @@ and sitemap (st:state) =
 
 and page (n:int) = sitemap (article' n defstate)
 
-fun main {} = sitemap defstate
+and main {} = sitemap defstate
+
+fun jqm_main a = JQM.main a
 

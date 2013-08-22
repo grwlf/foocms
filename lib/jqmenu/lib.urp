@@ -1,0 +1,5 @@
+ffi JQM_wrapper
+jsFunc JQM_wrapper.init=jqm_init
+script http://lab.dbpmail.net/static/jquery-1.9.1.min.js
+
+JQM

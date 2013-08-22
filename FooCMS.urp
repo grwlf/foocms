@@ -1,7 +1,10 @@
 allow mime text/css
+allow mime text/javascript
 library lib/uwprocess
+library lib/jqmenu
+library lib/static
 database dbname=FooCMS.db
 sql FooCMS.sql
+script /Lite/jqm_main
 
-lib/uwprocess/process
 src/Lite

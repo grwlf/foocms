@@ -1,0 +1,12 @@
+database dbname=urcms.db
+sql urcms.sql
+safeGet Main/main
+allow url http://tinymce.cachefly.net/*
+script http://tinymce.cachefly.net/4.0/tinymce.min.js
+ffi tinymce
+jsFunc Tinymce.init=tinymce.init
+effectful Tinymce.init
+
+$/option
+$/string
+main
