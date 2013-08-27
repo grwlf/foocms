@@ -9,15 +9,19 @@ FooCMS.db : FooCMS.sql FooCMS.exe Makefile
 	-rm -rf FooCMS.db
 	sqlite3 FooCMS.db < FooCMS.sql
 .INTERMEDIATE:stamp1
-stamp1 : lib/static/lib.urp lib/jqmenu/JQM.ur lib/jqmenu/JQM.urs lib/jqmenu/JQM_wrapper.urs lib/jqmenu/lib.urp lib/uwprocess/process.urs lib/uwprocess/lib.urp src/Lite.ur src/Lite.urs ./FooCMS.urp Makefile $(call GUARD,URFLAGS)
+stamp1 : src/static/JQM_js.urp src/static/Article_html.urp src/static/Style_css.urp src/uwprocess/process.urs src/uwprocess/lib.urp src/Lite.ur src/Lite.urs ./FooCMS.urp Makefile $(call GUARD,URFLAGS)
 	urweb $(URFLAGS) -dbms sqlite FooCMS
 	touch FooCMS.sql FooCMS.exe
 FooCMS.sql FooCMS.exe : stamp1
-lib/static/lib.urp : lib/jqmenu/JQM.js content/article.html src/Style.css Makefile
-	mkdir -pv lib/static
-	./mkres.sh lib/static src/Style.css content/article.html lib/jqmenu/JQM.js
-content/article.html : content/article.markdown Makefile
-	pandoc -f markdown -t html content/article.markdown > content/article.html
+src/static/JQM_js.urp : src/JQM.js Makefile
+	mkdir -pv src/static
+	urembed -o src/static src/JQM.js
+src/static/Article_html.urp : content/article.html Makefile
+	mkdir -pv src/static
+	urembed -o src/static content/article.html
+src/static/Style_css.urp : src/Style.css Makefile
+	mkdir -pv src/static
+	urembed -o src/static src/Style.css
 Makefile : ./Cakefile.hs
 	cake3
 $(call GUARD,URFLAGS) :

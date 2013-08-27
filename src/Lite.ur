@@ -79,7 +79,7 @@ fun template (s : scheme) (st : state) (tb : transaction xbody) : transaction pa
              <title>MultyLang page</title>
              <link rel="stylesheet" typ="text/css" href={url (css ())}/>
            </head>
-           <body onload={JQM_wrapper.init css_topmenu}>
+           <body onload={JQM_js.init_unit css_topmenu ""}>
 
              <h1>The body</h1>
 
@@ -183,5 +183,8 @@ and page (n:int) = sitemap (article' n defstate)
 
 and main {} = sitemap defstate
 
-fun jqm_main a = JQM.main a
+fun jqm_main a =
+  b <- JQM_js.binary ();
+  returnBlob b (blessMime "text/javascript")
+ 
 

@@ -1,4 +1,5 @@
-function jqm_init(menustyle) {
+
+function init_unit(menustyle_css_class, text_string) {
 
     $('.Lite_css_topmenu ul li').hover(
 

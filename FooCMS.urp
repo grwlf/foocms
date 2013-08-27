@@ -1,10 +1,12 @@
 allow mime text/css
 allow mime text/javascript
-library lib/uwprocess
-library lib/jqmenu
-library lib/static
+library src/uwprocess
+library src/static/Style_css
+library src/static/Article_html
+library src/static/JQM_js
 database dbname=FooCMS.db
 sql FooCMS.sql
 script /Lite/jqm_main
+script http://lab.dbpmail.net/static/jquery-1.9.1.min.js
 
 src/Lite
