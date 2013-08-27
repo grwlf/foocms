@@ -13,17 +13,20 @@ stamp1 : src/static/JQM_js.urp src/static/Article_html.urp src/static/Style_css.
 	urweb $(URFLAGS) -dbms sqlite FooCMS
 	touch FooCMS.sql FooCMS.exe
 FooCMS.sql FooCMS.exe : stamp1
-src/static/JQM_js.urp : src/JQM.js Makefile
+src/static/JQM_js.urp : src/JQM.js Makefile $(call GUARD,HOME)
 	mkdir -pv src/static
-	urembed -o src/static src/JQM.js
-src/static/Article_html.urp : content/article.html Makefile
+	urembed  -I $(HOME)/local/include/urweb -o src/static src/JQM.js
+src/static/Article_html.urp : content/article.html Makefile $(call GUARD,HOME)
 	mkdir -pv src/static
-	urembed -o src/static content/article.html
-src/static/Style_css.urp : src/Style.css Makefile
+	urembed  -I $(HOME)/local/include/urweb -o src/static content/article.html
+src/static/Style_css.urp : src/Style.css Makefile $(call GUARD,HOME)
 	mkdir -pv src/static
-	urembed -o src/static src/Style.css
+	urembed  -I $(HOME)/local/include/urweb -o src/static src/Style.css
 Makefile : ./Cakefile.hs
 	cake3
+$(call GUARD,HOME) :
+	rm -f .GUARD_HOME_*
+	touch $@
 $(call GUARD,URFLAGS) :
 	rm -f .GUARD_URFLAGS_*
 	touch $@

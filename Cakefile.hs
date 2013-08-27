@@ -42,7 +42,7 @@ article_html = rule [a .= "html"] $ do
 blob :: FilePath -> Rule
 blob b = rule [ file urp ] $ do
   shell [cmd| mkdir -pv $(static_dir) |]
-  shell [cmd| urembed -o $(takeDirectory urp) $(file b) |] where
+  shell [cmd| urembed  -I $(extvar "HOME")/local/include/urweb -o $urp $(file b) |] where
     static_dir = "src/static"
     urp = static_dir </> ((upperFst $ map undot (takeFileName b)) ++ ".urp") where
       upperFst x = toUpper (head x) : (tail x)
